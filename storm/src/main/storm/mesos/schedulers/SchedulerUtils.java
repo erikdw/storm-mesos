@@ -17,8 +17,8 @@
  */
 package storm.mesos.schedulers;
 
-import backtype.storm.scheduler.SupervisorDetails;
-import backtype.storm.scheduler.TopologyDetails;
+import org.apache.storm.scheduler.SupervisorDetails;
+import org.apache.storm.scheduler.TopologyDetails;
 import org.apache.mesos.Protos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

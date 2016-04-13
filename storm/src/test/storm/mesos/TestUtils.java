@@ -17,8 +17,8 @@
  */
 package storm.mesos;
 
-import backtype.storm.generated.StormTopology;
-import backtype.storm.scheduler.TopologyDetails;
+import org.apache.storm.generated.StormTopology;
+import org.apache.storm.scheduler.TopologyDetails;
 import org.apache.mesos.Protos;
 import storm.mesos.util.MesosCommon;
 
@@ -32,10 +32,13 @@ import java.util.Map;
 public class TestUtils {
 
   public static TopologyDetails constructTopologyDetails(String topologyName, int numWorkers, double numCpus, double memSize) {
-    Map<String, TopologyDetails> topologyConf = new HashMap<>();
+    Map topologyConf = new HashMap<>();
+    topologyConf.put("topology.worker.max.heap.size.mb", 768.0);
+    topologyConf.put("topology.priority", 0);
 
     StormTopology stormTopology = new StormTopology();
-    TopologyDetails topologyDetails= new TopologyDetails(topologyName, topologyConf, stormTopology, numWorkers);
+
+    TopologyDetails topologyDetails = new TopologyDetails(topologyName, topologyConf, stormTopology, numWorkers);
     topologyDetails.getConf().put(MesosCommon.WORKER_CPU_CONF, Double.valueOf(numCpus));
     topologyDetails.getConf().put(MesosCommon.WORKER_MEM_CONF, Double.valueOf(memSize));
 

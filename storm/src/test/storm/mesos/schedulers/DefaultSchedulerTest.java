@@ -17,15 +17,15 @@
  */
 package storm.mesos.schedulers;
 
-import backtype.storm.generated.StormTopology;
-import backtype.storm.scheduler.Cluster;
-import backtype.storm.scheduler.ExecutorDetails;
-import backtype.storm.scheduler.SchedulerAssignment;
-import backtype.storm.scheduler.SchedulerAssignmentImpl;
-import backtype.storm.scheduler.SupervisorDetails;
-import backtype.storm.scheduler.Topologies;
-import backtype.storm.scheduler.TopologyDetails;
-import backtype.storm.scheduler.WorkerSlot;
+import org.apache.storm.generated.StormTopology;
+import org.apache.storm.scheduler.Cluster;
+import org.apache.storm.scheduler.ExecutorDetails;
+import org.apache.storm.scheduler.SchedulerAssignment;
+import org.apache.storm.scheduler.SchedulerAssignmentImpl;
+import org.apache.storm.scheduler.SupervisorDetails;
+import org.apache.storm.scheduler.Topologies;
+import org.apache.storm.scheduler.TopologyDetails;
+import org.apache.storm.scheduler.WorkerSlot;
 import org.apache.mesos.Protos.Offer;
 import org.apache.mesos.Protos.OfferID;
 import org.junit.Before;
@@ -74,14 +74,15 @@ public class DefaultSchedulerTest {
 
 
   private TopologyDetails constructTopologyDetails(String topologyName, int numWorkers) {
-    Map<String, TopologyDetails> topologyConf1 = new HashMap<>();
+    Map topologyConf = new HashMap<>();
+    topologyConf.put("topology.worker.max.heap.size.mb", 768.0);
+    topologyConf.put("topology.priority", 0);
 
     StormTopology stormTopology = new StormTopology();
-    TopologyDetails topologyDetails= new TopologyDetails(topologyName, topologyConf1, stormTopology, numWorkers);
+    TopologyDetails topologyDetails = new TopologyDetails(topologyName, topologyConf, stormTopology, numWorkers);
 
     return topologyDetails;
   }
-
 
   private Cluster getSpyCluster() {
     Map<String, SupervisorDetails> supervisors = new HashMap<>();
@@ -92,7 +93,7 @@ public class DefaultSchedulerTest {
       supervisors.put(nodeId, supervisorDetails);
     }
 
-    return spy(new Cluster(null, supervisors, assignmentMap));
+    return spy(new Cluster(null, supervisors, assignmentMap, null));
   }
 
   private void initializeMesosWorkerSlotMap(List<MesosWorkerSlot> mesosWorkerSlots) {

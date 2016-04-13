@@ -17,10 +17,10 @@
  */
 package storm.mesos;
 
-import backtype.storm.generated.StormTopology;
-import backtype.storm.scheduler.Topologies;
-import backtype.storm.scheduler.TopologyDetails;
-import backtype.storm.scheduler.WorkerSlot;
+import org.apache.storm.generated.StormTopology;
+import org.apache.storm.scheduler.Topologies;
+import org.apache.storm.scheduler.TopologyDetails;
+import org.apache.storm.scheduler.WorkerSlot;
 import org.apache.mesos.Protos.Offer;
 import org.apache.mesos.Protos.OfferID;
 import org.junit.Test;
@@ -291,6 +291,8 @@ public class MesosNimbusTest {
     conf.put(MesosCommon.EXECUTOR_CPU_CONF, 1);
     conf.put(MesosCommon.EXECUTOR_MEM_CONF, 1024);
     conf.put(MesosNimbus.CONF_EXECUTOR_URI, "");
+    conf.put("topology.worker.max.heap.size.mb", 768.0);
+    conf.put("topology.priority", 0);
     mesosNimbus._conf = conf;
 
     topologyMap.put("t1", new TopologyDetails("t1", conf, new StormTopology(), 5));
