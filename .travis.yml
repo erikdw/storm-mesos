@@ -9,7 +9,6 @@ services:
 env:
   global:
   - TRAVIS_DOCKER_VERSION=1.10.3-0~trusty
-  - DOCKER_REPO=erikdw/storm-mesos
 before_install:
 - apt-cache madison docker-engine
 - travis_retry sudo apt-get -o Dpkg::Options::="--force-confnew" install -y docker-engine=${TRAVIS_DOCKER_VERSION}
@@ -42,4 +41,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    repo: erikdw/storm-mesos
+    repo: $TRAVIS_REPO_SLUG
