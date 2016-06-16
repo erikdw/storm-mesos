@@ -5,15 +5,14 @@ cache:
   directories:
   - $HOME/.m2/repository
 services:
-  - docker
+- docker
 env:
   global:
-    - TRAVIS_DOCKER_VERSION=1.10.3-0~trusty
-    - DOCKER_REPO=mesos
+  - TRAVIS_DOCKER_VERSION=1.10.3-0~trusty
+  - DOCKER_REPO=mesos
 before_install:
-  - apt-cache madison docker-engine
-  - travis_retry sudo apt-get -o Dpkg::Options::="--force-confnew" install -y docker-engine=${TRAVIS_DOCKER_VERSION}
-
+- apt-cache madison docker-engine
+- travis_retry sudo apt-get -o Dpkg::Options::="--force-confnew" install -y docker-engine=${TRAVIS_DOCKER_VERSION}
 install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true
 script:
 - jdk_switcher use oraclejdk8
@@ -26,22 +25,21 @@ matrix:
   include:
   - env: STORM_RELEASE="0.10.1" MESOS_RELEASE="0.28.2"
   - env: STORM_RELEASE="0.10.1" MESOS_RELEASE="0.27.2"
-  - env: STORM_RELEASE="0.9.6" MESOS_RELEASE="0.28.2"
-  - env: STORM_RELEASE="0.9.6" MESOS_RELEASE="0.27.2"
+  - env: STORM_RELEASE="0.9.6" MESOS_RELEASE="0.28.2" STORM_URL="https://github.com/erikdw/storm/releases/download/v0.9.6-storm-mesos2/apache-storm-0.9.6-storm-mesos2.tar.gz"
+  - env: STORM_RELEASE="0.9.6" MESOS_RELEASE="0.27.2" STORM_URL="https://github.com/erikdw/storm/releases/download/v0.9.6-storm-mesos2/apache-storm-0.9.6-storm-mesos2.tar.gz"
 before_deploy:
-  - travis_retry make images
-  - travis_retry make images JAVA_PRODUCT_VERSION=8
-  - docker images
-  - travis_retry docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - travis_retry make push
-  - travis_retry make push JAVA_PRODUCT_VERSION=8
-# Deploy archives to GitHub release tags
+- travis_retry make images
+- travis_retry make images JAVA_PRODUCT_VERSION=8
+- docker images
+- travis_retry docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+- travis_retry make push
+- travis_retry make push JAVA_PRODUCT_VERSION=8
 deploy:
   provider: releases
   api_key:
-    secure: SEKAUlMBRXrm9EY8JUYKrXQYC7v1+nJ2/0H23KvcZGbvBL6tMaY1jPJZ8vlCJjCwd69WUCc9a1p/IzYMkt6jz4xx2vB13MYL7GnQgltzEwCAVl7I6uw1r08SDyNdeCeBqZFTcPXmrWM5ByQ0q/4SqEqLMw1uCTfOQV1/XQeivkA=
+    secure: KjO4D/1IRc6WRYquTSYMYgpxwejsKe/xklZQQumLjvVzPoLUXKFGj7RCgnbq+Yl/8Jd7qBU2/NytfnDS1WdY1YNyLdR8Vp68XS3oinIEj66eNQWabaNOyQxKFoOmWXIr5PrM3UYTrisnjDVjzzpLwPEZz2CZNNdEUIaWCmAdG/A=
   file: "storm-mesos-$(grep -1 -A 0 -B 0 '<version>' pom.xml | head -n 1 | awk '{print $1}' | sed -e 's/.*<version>//' | sed -e 's|</version>.*||')-storm$STORM_RELEASE-mesos$MESOS_RELEASE.tgz"
   skip_cleanup: true
   on:
     tags: true
-    repo: mesos/storm
+    repo: erikdw/storm-mesos
