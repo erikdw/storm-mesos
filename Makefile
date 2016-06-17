@@ -5,7 +5,7 @@
 #
 #
 RELEASE ?= `grep -1 -A 0 -B 0 '<version>' pom.xml | head -n 1 | awk '{print $1}' | sed -e 's/.*<version>//' | sed -e 's/<\/version>.*//'`
-DOCKER_REPO ?= mesos/storm
+DOCKER_REPO ?= erikdw/storm
 MIRROR ?=
 STORM_URL ?=
 JAVA_PRODUCT_VERSION ?= 7
