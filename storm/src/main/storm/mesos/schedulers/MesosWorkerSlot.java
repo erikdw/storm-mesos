@@ -33,6 +33,6 @@ public class MesosWorkerSlot extends WorkerSlot {
 
   @Override
   public String toString() {
-    return String.format("%s:%s topologyId:%s", super.getNodeId(), super.getPort(), topologyId);
+    return String.format("%s:%s topologyId: %s", super.getNodeId(), super.getPort(), topologyId);
   }
 }

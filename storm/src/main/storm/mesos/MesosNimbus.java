@@ -398,17 +398,19 @@ public class MesosNimbus implements INimbus {
    */
   @Override
   public void assignSlots(Topologies topologies, Map<String, Collection<WorkerSlot>> slotsForTopologiesNeedingAssignments) {
+    LOG.info("ASSIGN SLOTS BEING CALLED");
     if (slotsForTopologiesNeedingAssignments.isEmpty()) {
-      LOG.debug("assignSlots: no slots passed in, nothing to do");
+      LOG.info("assignSlots: no slots passed in, nothing to do");
       return;
     }
 
     // This is purely to print the debug information. Otherwise, the following for loop is unnecessary.
     for (Map.Entry<String, Collection<WorkerSlot>> topologyToSlots : slotsForTopologiesNeedingAssignments.entrySet()) {
       String topologyId = topologyToSlots.getKey();
+      LOG.info("TOPOLOGY ID: {}, NUMBER OF SLOTS: {}", topologyId, topologyToSlots.getValue().size());
       for (WorkerSlot slot : topologyToSlots.getValue()) {
         TopologyDetails details = topologies.getById(topologyId);
-        LOG.debug("assignSlots: topologyId: {} worker being assigned to slot: {} with workerCpu: {} workerMem: {}",
+        LOG.info("assignSlots: topologyId: {} worker being assigned to slot: {} with workerCpu: {} workerMem: {}",
                   topologyId, slot, MesosCommon.topologyWorkerCpu(mesosStormConf, details), MesosCommon.topologyWorkerMem(mesosStormConf, details));
       }
     }

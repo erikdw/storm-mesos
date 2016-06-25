@@ -159,6 +159,10 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
     }
 
     log.info("Number of available slots: {}", allSlots.size());
+    log.info("all slots:");
+    for (WorkerSlot slot : allSlots) {
+      log.info(" - {}", slot.toString());
+    }
     return allSlots;
   }
 
@@ -219,8 +223,20 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
    */
   @Override
   public void schedule(Topologies topologies, Cluster cluster) {
+    log.info("SCHEDULE BEING CALLED");
     List<WorkerSlot> workerSlots = cluster.getAvailableSlots();
+    log.info(" * worker slots:");
+    for (WorkerSlot ws : workerSlots) {
+      log.info(" ** {}", ws.toString());
+    }
     Map<String, List<MesosWorkerSlot>> perTopologySlotList = getMesosWorkerSlotPerTopology(workerSlots);
+    log.info(" $ per topology slot list:");
+    for (String topo : perTopologySlotList.keySet()) {
+      log.info(" $ {}", topo);
+      for (MesosWorkerSlot mws : perTopologySlotList.get(topo)) {
+        log.info(" $$ {}", mws.toString());
+      }
+    }
 
     // So far we know how many MesosSlots each of the topologies have got. Lets assign executors for each of them
     for (String topologyId : perTopologySlotList.keySet()) {
@@ -236,6 +252,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       }
 
       int countSlotsAvailable = Math.min(mesosWorkerSlots.size(), (countSlotsRequested - countSlotsAssigned));
+      log.info("topologyId: {}, countSlotsRequested: {}, countSlotsAssigned: {}, countSlotsAvailable: {}", topologyId, countSlotsRequested, countSlotsAssigned, countSlotsAvailable);
 
       List<List<ExecutorDetails>> executorsPerWorkerList = executorsPerWorkerList(cluster, topologyDetails, countSlotsAvailable);
 
