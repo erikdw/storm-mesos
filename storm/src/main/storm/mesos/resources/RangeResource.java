@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -157,28 +158,24 @@ public final class RangeResource implements Resource<RangeResourceEntry> {
 
     // Iterate over all of the available resources
     for (ReservationType reservationType : reservationTypes) {
-      int indexToRemove = -1;
       List<RangeResourceEntry> availableRanges = availableResourcesByReservationType.get(reservationType);
-      for (int i = 0; i < availableRanges.size(); i++) {
-        RangeResourceEntry availableRange = availableRanges.get(i);
+      ListIterator<RangeResourceEntry> iterator = availableRanges.listIterator();
+      while (iterator.hasNext()) {
+        RangeResourceEntry availableRange = iterator.next();
         if (desiredPort >= availableRange.getBegin() && desiredPort <= availableRange.getEnd()) {
-          indexToRemove = i;
+          iterator.remove();
           // Salvage resources before the beginning of the requested port
           if (availableRange.getBegin() < desiredPort) {
-            availableRanges.add(new RangeResourceEntry(reservationType, availableRange.getBegin(), desiredPort - 1));
+            iterator.add(new RangeResourceEntry(reservationType, availableRange.getBegin(), desiredPort - 1));
           }
           // Salvage resources after the end of the requested port
           if (availableRange.getEnd() > desiredPort) {
-            availableRanges.add(new RangeResourceEntry(reservationType, desiredPort + 1, availableRange.getEnd()));
+            iterator.add(new RangeResourceEntry(reservationType, desiredPort + 1, availableRange.getEnd()));
           }
           // Now that we've salvaged all available resources, add the resources for the specifically requested range
           removedResources.add(new RangeResourceEntry(reservationType, desiredPort, desiredPort));
           break;
         }
-      }
-      if (indexToRemove != -1) {
-        availableRanges.remove(indexToRemove);
-        break;
       }
     }
     return removedResources;
