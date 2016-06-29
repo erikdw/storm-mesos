@@ -155,7 +155,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
         allSlots.add(mesosWorkerSlot);
       }
 
-      log.info("Number of available slots for {} : {}", topologyDetails.getId(), allSlots.size());
+      log.info("Number of available slots for {} : {}", topologyDetails.getId(), mesosWorkerSlotList.size());
     }
 
     log.info("Number of available slots: {}", allSlots.size());
