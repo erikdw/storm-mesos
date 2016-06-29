@@ -223,18 +223,17 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
    */
   @Override
   public void schedule(Topologies topologies, Cluster cluster) {
-    log.info("SCHEDULE BEING CALLED");
     List<WorkerSlot> workerSlots = cluster.getAvailableSlots();
-    log.info(" * worker slots:");
+    log.info("Scheduling the following worker slots:");
     for (WorkerSlot ws : workerSlots) {
-      log.info(" ** {}", ws.toString());
+      log.info("- {}", ws.toString());
     }
     Map<String, List<MesosWorkerSlot>> perTopologySlotList = getMesosWorkerSlotPerTopology(workerSlots);
-    log.info(" $ per topology slot list:");
+    log.info("Schedule the per-topology slots:");
     for (String topo : perTopologySlotList.keySet()) {
-      log.info(" $ {}", topo);
+      log.info("- {}", topo);
       for (MesosWorkerSlot mws : perTopologySlotList.get(topo)) {
-        log.info(" $$ {}", mws.toString());
+        log.info("-- {}", mws.toString());
       }
     }
 
