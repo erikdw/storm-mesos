@@ -401,6 +401,15 @@ public class MesosNimbus implements INimbus {
     if (slotsForTopologiesNeedingAssignments.isEmpty()) {
       LOG.info("assignSlots: no slots passed in, nothing to do");
       return;
+    } else {
+      LOG.info("assignSlots: slots for topologies needing assignments");
+      for (String topologyId : slotsForTopologiesNeedingAssignments.keySet()) {
+        LOG.info("- {}", topologyId);
+        Collection<WorkerSlot> workerSlotList = slotsForTopologiesNeedingAssignments.get(topologyId);
+        for (WorkerSlot workerSlot : workerSlotList) {
+          LOG.info("-- {}", workerSlot.toString());
+        }
+      }
     }
 
     // This is purely to print the debug information. Otherwise, the following for loop is unnecessary.

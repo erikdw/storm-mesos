@@ -237,7 +237,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       }
     }
 
-    // So far we know how many MesosSlots each of the topologies have got. Lets assign executors for each of them
+    // So far we know how many MesosSlots each of the topologies have got. Let's assign executors for each of them
     for (String topologyId : perTopologySlotList.keySet()) {
       TopologyDetails topologyDetails = topologies.getById(topologyId);
       List<MesosWorkerSlot> mesosWorkerSlots = perTopologySlotList.get(topologyId);
@@ -256,6 +256,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       List<List<ExecutorDetails>> executorsPerWorkerList = executorsPerWorkerList(cluster, topologyDetails, countSlotsAvailable);
 
       for (int i = 0; i < countSlotsAvailable; i++) {
+        log.info("schedule: mesosworkerSlot: {}, topologyId: {}, executorsPerWorkerList: {}", mesosWorkerSlots.get(0).toString(), topologyId, executorsPerWorkerList.get(0).toString());
         cluster.assign(mesosWorkerSlots.remove(0), topologyId, executorsPerWorkerList.remove(0));
       }
     }
