@@ -17,13 +17,7 @@
  */
 package storm.mesos.schedulers;
 
-import backtype.storm.scheduler.Cluster;
-import backtype.storm.scheduler.ExecutorDetails;
-import backtype.storm.scheduler.IScheduler;
-import backtype.storm.scheduler.SupervisorDetails;
-import backtype.storm.scheduler.Topologies;
-import backtype.storm.scheduler.TopologyDetails;
-import backtype.storm.scheduler.WorkerSlot;
+import backtype.storm.scheduler.*;
 import org.apache.mesos.Protos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,8 +185,17 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
 
   List<List<ExecutorDetails>> executorsPerWorkerList(Cluster cluster, TopologyDetails topologyDetails, Integer slotsAvailable) {
     Collection<ExecutorDetails> executors = cluster.getUnassignedExecutors(topologyDetails);
+    if (executors.isEmpty()) {
+      SchedulerAssignment schedulerAssignment = cluster.getAssignmentById(topologyDetails.getId());
+      executors = schedulerAssignment.getExecutors();
+      cluster.freeSlots(schedulerAssignment.getSlots());
+    }
+    for (ExecutorDetails exec : executors) {
+      log.info("executorsPerWorkerList - unassigned executor found: {}", exec.toString());
+    }
     List<List<ExecutorDetails>> executorsPerWorkerList = new ArrayList<>();
 
+    log.info("executorsPerWorkerList - adding {} empty lists to executorsPerWorkerList", slotsAvailable);
     for (int i = 0; i < slotsAvailable; i++) {
       executorsPerWorkerList.add(new ArrayList<ExecutorDetails>());
     }
@@ -211,6 +214,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
     int index = -1;
     for (ExecutorDetails executorDetails : executorList) {
       index = ++index % slotsAvailable;
+      log.info("executorsPerWorkerList -- adding {} to list at index {}", executorDetails.toString(), index);
       executorsPerWorkerList.get(index).add(executorDetails);
     }
 
@@ -224,7 +228,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
   @Override
   public void schedule(Topologies topologies, Cluster cluster) {
     List<WorkerSlot> workerSlots = cluster.getAvailableSlots();
-    log.info("Scheduling the following worker slots:");
+    log.info("Scheduling the following worker slots from cluster.getAvailableSlots:");
     for (WorkerSlot ws : workerSlots) {
       log.info("- {}", ws.toString());
     }
