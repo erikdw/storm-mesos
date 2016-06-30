@@ -102,13 +102,13 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
    *
    * Note:
    * 1. "MesosWorkerSlot" is the same as WorkerSlot except that it is dedicated for a topology upon creation. This means that,
-   * a MesosWorkerSlot belonging to one topology cannot be used to launch a worker belonging to a different topology.
+   *    a MesosWorkerSlot belonging to one topology cannot be used to launch a worker belonging to a different topology.
    * 2. Please note that this method is called before schedule is invoked. We use this opportunity to assign the MesosWorkerSlot
-   * to a specific topology and store the state in "mesosWorkerSlotMap". This way, when Storm later calls schedule, we can just
-   * look up the "mesosWorkerSlotMap" for a list of available slots for the particular topology.
+   *    to a specific topology and store the state in "mesosWorkerSlotMap". This way, when Storm later calls schedule, we can just
+   *    look up the "mesosWorkerSlotMap" for a list of available slots for the particular topology.
    * 3. Given MesosWorkerSlot extends WorkerSlot, we shouldn't have to really create a "mesosWorkerSlotMap". Instead, in the schedule
-   * method, we could have just upcasted the "WorkerSlot" to "MesosWorkerSlot". But this is not currently possible because storm
-   * passes a recreated version of WorkerSlot to schedule method instead of passing the WorkerSlot returned by this method as is.
+   *    method, we could have just upcasted the "WorkerSlot" to "MesosWorkerSlot". But this is not currently possible because storm
+   *    passes a recreated version of WorkerSlot to schedule method instead of passing the WorkerSlot returned by this method as is.
     */
   @Override
   public List<WorkerSlot> allSlotsAvailableForScheduling(RotatingMap<Protos.OfferID, Protos.Offer> offers,
@@ -251,8 +251,8 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       TopologyDetails topologyDetails = topologies.getById(topologyId);
       List<MesosWorkerSlot> mesosWorkerSlots = perTopologySlotList.get(topologyId);
 
-      // int countSlotsRequested = topologyDetails.getNumWorkers();
-      int countSlotsRequested = MesosCommon.getMaxSlotsForTopology(topologyDetails);
+      int countSlotsRequested = topologyDetails.getNumWorkers();
+      // int countSlotsRequested = MesosCommon.getMaxSlotsForTopology(topologyDetails);
       int countSlotsAssigned = cluster.getAssignedNumWorkers(topologyDetails);
 
       if (mesosWorkerSlots.size() == 0) {
