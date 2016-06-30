@@ -36,7 +36,7 @@ public class AggregatedOffers {
 
   private List<Protos.Offer> offerList = new ArrayList<Protos.Offer>();
 
-  private final String hostName;
+  private final String hostname;
 
   private Protos.SlaveID slaveID;
 
@@ -55,17 +55,17 @@ public class AggregatedOffers {
   public AggregatedOffers(Protos.Offer offer) {
     initializeAvailableResources();
     this.slaveID = offer.getSlaveId();
-    this.hostName = offer.getHostname();
+    this.hostname = offer.getHostname();
     add(offer);
   }
 
-  public String getHostName() {
-    return hostName;
+  public String getHostname() {
+    return hostname;
   }
 
   public void add(Protos.Offer offer) {
-    // We are unable to aggregate offers if they are from different workers
-    assert offer.getSlaveId().equals(slaveID) && offer.getHostname().equals(hostName);
+    // We are unable to aggregate offers if they are from different mesos slaves/workers/agents
+    assert offer.getSlaveId().equals(slaveID) && offer.getHostname().equals(hostname);
     offerList.add(offer);
 
     for (Protos.Resource r : offer.getResourcesList()) {

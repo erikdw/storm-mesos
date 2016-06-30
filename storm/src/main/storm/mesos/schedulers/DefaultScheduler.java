@@ -55,6 +55,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
 
     double requestedWorkerCpu = MesosCommon.topologyWorkerCpu(mesosStormConf, topologyDetails);
     double requestedWorkerMem = MesosCommon.topologyWorkerMem(mesosStormConf, topologyDetails);
+    int requestedWorkerMemInt = (int) requestedWorkerMem;
 
     List<MesosWorkerSlot> mesosWorkerSlots = new ArrayList<>();
     boolean slotFound = false;
@@ -68,13 +69,13 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
         boolean supervisorExists = nodesWithExistingSupervisors.contains(currentNode);
 
         if (!aggregatedOffers.isFit(mesosStormConf, topologyDetails, supervisorExists)) {
-          log.info("{} is not a fit for {} requestedWorkerCpu: {} requestedWorkerMem: {}",
-                   aggregatedOffers.toString(), topologyDetails.getId(), requestedWorkerCpu, requestedWorkerMem);
+          log.info("{} with requestedWorkerCpu {} and requestedWorkerMem {} does not fit onto {} with resources {}",
+                   topologyDetails.getId(), requestedWorkerCpu, requestedWorkerMemInt, aggregatedOffers.getHostname(), aggregatedOffers.toString());
           continue;
         }
 
-        log.info("{} is a fit for {} requestedWorkerCpu: {} requestedWorkerMem: {}", aggregatedOffers.toString(),
-                 topologyDetails.getId(), requestedWorkerCpu, requestedWorkerMem);
+        log.info("{} with requestedWorkerCpu {} and requestedWorkerMem {} does fit onto {} with resources {}",
+                 topologyDetails.getId(), requestedWorkerCpu, requestedWorkerMemInt, aggregatedOffers.getHostname(), aggregatedOffers.toString());
         MesosWorkerSlot mesosWorkerSlot;
         try {
           mesosWorkerSlot = SchedulerUtils.createMesosWorkerSlot(mesosStormConf, aggregatedOffers, topologyDetails, supervisorExists);
@@ -152,11 +153,11 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       log.info("Number of available slots for {} : {}", topologyDetails.getId(), mesosWorkerSlotList.size());
     }
 
-    log.info("Number of available slots: {}", allSlots.size());
-    log.info("all slots:");
+    List<String> slotsStrings = new ArrayList<String>();
     for (WorkerSlot slot : allSlots) {
-      log.info(" - {}", slot.toString());
+      slotsStrings.add("" + slot.getNodeId() + ":" + slot.getPort());
     }
+    log.info("allSlotsAvailableForScheduling - {} available slots: [{}]", allSlots.size(), String.join(", ", slotsStrings));
     return allSlots;
   }
 
@@ -186,16 +187,21 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
   List<List<ExecutorDetails>> executorsPerWorkerList(Cluster cluster, TopologyDetails topologyDetails, Integer slotsAvailable) {
     Collection<ExecutorDetails> executors = cluster.getUnassignedExecutors(topologyDetails);
     if (executors.isEmpty()) {
+      log.info("There are currently no unassigned executors. Using all currently existing executors instead.");
+      // Since there are not any unassigned executors, we need to re-distribute all currently existing executors across workers
       SchedulerAssignment schedulerAssignment = cluster.getAssignmentById(topologyDetails.getId());
+      // Get all currently existing executors
       executors = schedulerAssignment.getExecutors();
+      // Un-assign them
       cluster.freeSlots(schedulerAssignment.getSlots());
+      log.info("executorsPerWorkerList - slotsAvailable: {}, slotsAssigned: {}, slotsFreed: {}", slotsAvailable, slotsAssigned, schedulerAssignment.getSlots().size());
+      slotsAvailable += slotsAssigned;
     }
-    for (ExecutorDetails exec : executors) {
-      log.info("executorsPerWorkerList - unassigned executor found: {}", exec.toString());
-    }
-    List<List<ExecutorDetails>> executorsPerWorkerList = new ArrayList<>();
 
-    log.info("executorsPerWorkerList - adding {} empty lists to executorsPerWorkerList", slotsAvailable);
+    List<String> executorsStrings = new ArrayList<String>();
+    for (ExecutorDetails exec : executors) {
+      executorsStrings.add(exec.toString());
+    }
     for (int i = 0; i < slotsAvailable; i++) {
       executorsPerWorkerList.add(new ArrayList<ExecutorDetails>());
     }
@@ -214,7 +220,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
     int index = -1;
     for (ExecutorDetails executorDetails : executorList) {
       index = ++index % slotsAvailable;
-      log.info("executorsPerWorkerList -- adding {} to list at index {}", executorDetails.toString(), index);
+      // log.info("executorsPerWorkerList -- adding {} to list at index {}", executorDetails.toString(), index);
       executorsPerWorkerList.get(index).add(executorDetails);
     }
 
@@ -228,18 +234,28 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
   @Override
   public void schedule(Topologies topologies, Cluster cluster) {
     List<WorkerSlot> workerSlots = cluster.getAvailableSlots();
-    log.info("Scheduling the following worker slots from cluster.getAvailableSlots:");
-    for (WorkerSlot ws : workerSlots) {
-      log.info("- {}", ws.toString());
-    }
-    Map<String, List<MesosWorkerSlot>> perTopologySlotList = getMesosWorkerSlotPerTopology(workerSlots);
-    log.info("Schedule the per-topology slots:");
-    for (String topo : perTopologySlotList.keySet()) {
-      log.info("- {}", topo);
-      for (MesosWorkerSlot mws : perTopologySlotList.get(topo)) {
-        log.info("-- {}", mws.toString());
+    String info = "Scheduling the following worker slots from cluster.getAvailableSlots: ";
+    if (workerSlots.isEmpty()) {
+      info += "[]";
+    } else {
+      List<String> workerSlotsStrings = new ArrayList<String>();
+      for (WorkerSlot ws : workerSlots) {
+        workerSlotsStrings.add(ws.toString());
       }
+      info += "[" + String.join(", ", workerSlotsStrings) + "]";
     }
+    log.info(info);
+
+    Map<String, List<MesosWorkerSlot>> perTopologySlotList = getMesosWorkerSlotPerTopology(workerSlots);
+    info = "Schedule the per-topology slots:";
+    for (String topo : perTopologySlotList.keySet()) {
+      List<String> mwsAssignments = new ArrayList<>();
+      for (MesosWorkerSlot mws : perTopologySlotList.get(topo)) {
+        mwsAssignments.add(mws.getNodeId() + ":" + mws.getPort());
+      }
+      info += (" {" + topo + ", [" + String.join(", ", mwsAssignments) + "]}");
+    }
+    log.info(info);
 
     // So far we know how many MesosSlots each of the topologies have got. Let's assign executors for each of them
     for (String topologyId : perTopologySlotList.keySet()) {
@@ -259,10 +275,20 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
 
       List<List<ExecutorDetails>> executorsPerWorkerList = executorsPerWorkerList(cluster, topologyDetails, countSlotsAvailable);
 
-      for (int i = 0; i < countSlotsAvailable; i++) {
-        log.info("schedule: mesosworkerSlot: {}, topologyId: {}, executorsPerWorkerList: {}", mesosWorkerSlots.get(0).toString(), topologyId, executorsPerWorkerList.get(0).toString());
+      info = "schedule: Cluster assignment for " + topologyId + "."
+           + " Requesting " + slotsRequested + " slots, with " + slotsAvailable + " slots available, and " + slotsAssigned + " currently assigned."
+           + " Setting new assignment (node:port, executorsPerWorkerList) as: ";
+      List<String> slotAssignmentStrings = new ArrayList<String>();
+      for (int i = 0; i < slotsAvailable; i++) {
+        slotAssignmentStrings.add("(" + mesosWorkerSlots.get(0).getNodeId() + ":" + mesosWorkerSlots.get(0).getPort() + ", " + executorsPerWorkerList.get(0).toString() + ")");
         cluster.assign(mesosWorkerSlots.remove(0), topologyId, executorsPerWorkerList.remove(0));
       }
+      if (slotsAvailable == 0) {
+        info += "[]";
+      } else {
+        info += String.join(", ", slotAssignmentStrings);
+      }
+      log.info(info);
     }
     mesosWorkerSlotMap.clear();
   }

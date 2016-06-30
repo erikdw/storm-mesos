@@ -128,10 +128,10 @@ public class ScalarResource implements Resource<ScalarResourceEntry> {
   public String toString() {
     List<String> availableResourcesByResourceTypeList = new ArrayList<>();
     for (Map.Entry<ReservationType, ScalarResourceEntry> entry: availableResourcesByReservationType.entrySet()) {
-      availableResourcesByResourceTypeList.add(String.format("%s: %f", entry.getKey(), entry.getValue().getValue()));
+      availableResourcesByResourceTypeList.add(String.format("%s: %s", entry.getKey(), Double.toString(entry.getValue().getValue())));
     }
     String tmp = StringUtils.join(availableResourcesByResourceTypeList, ", ");
-    return String.format("%s: %f (%s)", resourceType.toString(), totalAvailableResource, tmp);
+    return String.format("%s: %s (%s)", resourceType.toString(), Double.toString(totalAvailableResource), tmp);
   }
 
   private List<ResourceEntry> removeAndGet(ScalarResourceEntry scalarResourceEntry, Collection<ReservationType> reservationTypesListByPriority) throws
