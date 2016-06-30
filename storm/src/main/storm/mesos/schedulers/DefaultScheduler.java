@@ -186,12 +186,16 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
   List<List<ExecutorDetails>> executorsPerWorkerList(Cluster cluster, TopologyDetails topologyDetails, Integer slotsAvailable) {
     Collection<ExecutorDetails> executors = cluster.getUnassignedExecutors(topologyDetails);
     if (executors.isEmpty()) {
+      log.info("There are currently no unassigned executors. Using all currently existing executors instead.");
+      // Since there are not any unassigned executors, we need to re-distribute all currently existing executors across workers
       SchedulerAssignment schedulerAssignment = cluster.getAssignmentById(topologyDetails.getId());
+      // Get all currently existing executors
       executors = schedulerAssignment.getExecutors();
+      // Un-assign them
       cluster.freeSlots(schedulerAssignment.getSlots());
     }
     for (ExecutorDetails exec : executors) {
-      log.info("executorsPerWorkerList - unassigned executor found: {}", exec.toString());
+      log.info("executorsPerWorkerList - available executor: {}", exec.toString());
     }
     List<List<ExecutorDetails>> executorsPerWorkerList = new ArrayList<>();
 
