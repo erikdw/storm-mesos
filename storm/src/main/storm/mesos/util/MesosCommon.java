@@ -25,10 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.mesos.resources.AggregatedOffers;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class MesosCommon {
@@ -223,4 +225,19 @@ public class MesosCommon {
     return Optional.fromNullable((String) conf.get(CONF_MESOS_ROLE)).or("*");
   }
 
+  public static int getMaxSlotsForTopology(TopologyDetails topologyDetails) {
+    int maxSlots = topologyDetails.getNumWorkers();
+    File f = new File("/tmp/max-topology-slots/" + topologyDetails.getName());
+    if (f.exists() && !f.isDirectory()) {
+      try {
+        Scanner scanner = new Scanner(f);
+        if (scanner.hasNextInt()) {
+          maxSlots = scanner.nextInt();
+        }
+      } catch (java.io.FileNotFoundException e) {
+        LOG.warn("File {} not found", f, e);
+      }
+    }
+    return maxSlots;
+  }
 }

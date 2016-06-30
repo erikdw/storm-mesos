@@ -51,14 +51,14 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
 
   private List<MesosWorkerSlot> getMesosWorkerSlots(Map<String, AggregatedOffers> aggregatedOffersPerNode,
                                                     Collection<String> nodesWithExistingSupervisors,
-                                                    TopologyDetails topologyDetails) {
+                                                    TopologyDetails topologyDetails,
+                                                    int slotsNeeded) {
 
     double requestedWorkerCpu = MesosCommon.topologyWorkerCpu(mesosStormConf, topologyDetails);
     double requestedWorkerMem = MesosCommon.topologyWorkerMem(mesosStormConf, topologyDetails);
 
     List<MesosWorkerSlot> mesosWorkerSlots = new ArrayList<>();
     boolean slotFound = false;
-    int slotsNeeded = topologyDetails.getNumWorkers();
 
     do {
       slotFound = false;
@@ -128,7 +128,8 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
 
     for (String currentTopology : topologiesMissingAssignments) {
       TopologyDetails topologyDetails = topologies.getById(currentTopology);
-      int slotsNeeded = topologyDetails.getNumWorkers();
+      // int slotsNeeded = topologyDetails.getNumWorkers();
+      int slotsNeeded = MesosCommon.getMaxSlotsForTopology(topologyDetails);
 
       log.info("Trying to find {} slots for {}", slotsNeeded, topologyDetails.getId());
       if (slotsNeeded <= 0) {
@@ -142,7 +143,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
         }
       }
 
-      List<MesosWorkerSlot> mesosWorkerSlotList = getMesosWorkerSlots(aggregatedOffersPerNode, nodesWithExistingSupervisors, topologyDetails);
+      List<MesosWorkerSlot> mesosWorkerSlotList = getMesosWorkerSlots(aggregatedOffersPerNode, nodesWithExistingSupervisors, topologyDetails, slotsNeeded);
       for (MesosWorkerSlot mesosWorkerSlot : mesosWorkerSlotList) {
         String slotId = String.format("%s:%s", mesosWorkerSlot.getNodeId(), mesosWorkerSlot.getPort());
         mesosWorkerSlotMap.put(slotId, mesosWorkerSlot);
@@ -250,7 +251,8 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       TopologyDetails topologyDetails = topologies.getById(topologyId);
       List<MesosWorkerSlot> mesosWorkerSlots = perTopologySlotList.get(topologyId);
 
-      int countSlotsRequested = topologyDetails.getNumWorkers();
+      // int countSlotsRequested = topologyDetails.getNumWorkers();
+      int countSlotsRequested = MesosCommon.getMaxSlotsForTopology(topologyDetails);
       int countSlotsAssigned = cluster.getAssignedNumWorkers(topologyDetails);
 
       if (mesosWorkerSlots.size() == 0) {
