@@ -437,7 +437,7 @@ public class MesosNimbus implements INimbus {
         List<OfferID> offerIDList = aggregatedOffersPerNode.get(node).getOfferIDList();
         List<TaskInfo> taskInfoList = tasksToLaunchPerNode.get(node);
 
-        LOG.info("Using offerIDs: " + offerIDListToString(offerIDList) + " on host: " + node + " to launch tasks: " + taskInfoListToString(taskInfoList));
+        LOG.info("Using offerIDs: {} on host: {} to launch tasks: {}", offerIDListToString(offerIDList), node, taskInfoListToString(taskInfoList));
 
         _driver.launchTasks(offerIDList, taskInfoList);
         for (OfferID offerID: offerIDList) {
