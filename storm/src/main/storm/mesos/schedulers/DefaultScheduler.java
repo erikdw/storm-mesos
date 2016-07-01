@@ -212,12 +212,13 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       executors = schedulerAssignment.getExecutors();
       // Un-assign them
       cluster.freeSlots(schedulerAssignment.getSlots());
+      slotsAvailable += executors.size();
     }
 
     for (ExecutorDetails exec : executors) {
       log.info("executorsPerWorkerList - available executor: {}", exec.toString());
     }
-    log.info("executorsPerWorkerList - adding {} empty lists to executorsPerWorkerList", slotsAvailable);
+    // log.info("executorsPerWorkerList - adding {} empty lists to executorsPerWorkerList", slotsAvailable);
     for (int i = 0; i < slotsAvailable; i++) {
       executorsPerWorkerList.add(new ArrayList<ExecutorDetails>());
     }
@@ -236,7 +237,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
     int index = -1;
     for (ExecutorDetails executorDetails : executorList) {
       index = ++index % slotsAvailable;
-      log.info("executorsPerWorkerList -- adding {} to list at index {}", executorDetails.toString(), index);
+      // log.info("executorsPerWorkerList -- adding {} to list at index {}", executorDetails.toString(), index);
       executorsPerWorkerList.get(index).add(executorDetails);
     }
 
