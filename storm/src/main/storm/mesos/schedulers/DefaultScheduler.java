@@ -212,6 +212,8 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       executors = schedulerAssignment.getExecutors();
       // Un-assign them
       cluster.freeSlots(schedulerAssignment.getSlots());
+      log.info("executorsPerWorkerList - slotsAvailable: {}, slotsAssigned: {}, slotsFreed: {}", slotsAvailable, slotsAssigned, schedulerAssignment.getSlots().size());
+      slotsAvailable += slotsAssigned;
     }
 
     for (ExecutorDetails exec : executors) {
