@@ -204,15 +204,17 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
     }
 
     // If there are not any unassigned executors, we need to re-distribute all currently existing executors across workers
-    if (executors.isEmpty()) {
+    if (executors.isEmpty() && slotsAvailable > slotsAssigned) {
       log.info("There are currently no unassigned executors. Using all currently existing executors instead.");
       SchedulerAssignment schedulerAssignment = cluster.getAssignmentById(topologyDetails.getId());
-      // Get all currently existing executors
-      executors = schedulerAssignment.getExecutors();
       // Un-assign them
+      int slotsFreed = schedulerAssignment.getSlots().size();
       cluster.freeSlots(schedulerAssignment.getSlots());
-      log.info("executorsPerWorkerList - slotsAvailable: {}, slotsAssigned: {}, slotsFreed: {}", slotsAvailable, slotsAssigned, schedulerAssignment.getSlots().size());
+      log.info("executorsPerWorkerList - slotsAvailable: {}, slotsAssigned: {}, slotsFreed: {}", slotsAvailable, slotsAssigned, slotsFreed);
+      executors = cluster.getUnassignedExecutors(topologyDetails);
       slotsAvailable += slotsAssigned;
+    } else if (executors.isEmpty()) {
+      log.info("There are currently no unassigned executors. Not going to redistribute work because slotsAvailable is {} and slotsAssigned is {}", slotsAvailable, slotsAssigned);
     }
 
     List<String> executorsStrings = new ArrayList<String>();
