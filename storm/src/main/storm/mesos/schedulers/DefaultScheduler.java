@@ -221,6 +221,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
     for (ExecutorDetails exec : executors) {
       executorsStrings.add(exec.toString());
     }
+    String info = String.format("executorsPerWorkerList - available executors for topology %s: %s", topologyDetails.getId(), String.join(", ", executorsStrings));
     for (int i = 0; i < slotsAvailable; i++) {
       executorsPerWorkerList.add(new ArrayList<ExecutorDetails>());
     }
