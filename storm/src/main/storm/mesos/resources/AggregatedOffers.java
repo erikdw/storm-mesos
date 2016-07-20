@@ -47,11 +47,6 @@ public class AggregatedOffers {
     availableResources.put(ResourceType.PORTS, new RangeResource(ResourceType.PORTS));
   }
 
-  public AggregatedOffers(String hostName) {
-    this.hostName = hostName;
-    initializeAvailableResources();
-  }
-
   public AggregatedOffers(Protos.Offer offer) {
     initializeAvailableResources();
     this.slaveID = offer.getSlaveId();
@@ -103,6 +98,11 @@ public class AggregatedOffers {
     return availableResources.get(resourceType).isAvailable(resource);
   }
 
+  /**
+   * Unused Method - Exists for the purpose of facilitating support of reservations.
+   * TODO: Support reservations (https://github.com/mesos/storm/issues/148)
+   * For more information about why this unused code exists, see discussion: https://github.com/mesos/storm/pull/146#issuecomment-225496075
+   */
   public boolean isAvailable(ResourceType resourceType, ReservationType reservationType, ResourceEntry<?> resource) {
     return availableResources.get(resourceType).isAvailable(resource, reservationType);
   }
@@ -111,6 +111,11 @@ public class AggregatedOffers {
     return availableResources.get(resourceType).getAllAvailableResources();
   }
 
+  /**
+   * Unused Method - Exists for the purpose of facilitating support of reservations.
+   * TODO: Support reservations (https://github.com/mesos/storm/issues/148)
+   * For more information about why this unused code exists, see discussion: https://github.com/mesos/storm/pull/146#issuecomment-225496075
+   */
   public <T extends ResourceEntry> List<T> getAllAvailableResources(ResourceType resourceType, ReservationType reservationType) {
     return availableResources.get(resourceType).getAllAvailableResources(reservationType);
   }
@@ -128,16 +133,17 @@ public class AggregatedOffers {
     return new ArrayList<>();
   }
 
+  /**
+   * Unused Method - Exists for the purpose of facilitating support of reservations.
+   * TODO: Support reservations (https://github.com/mesos/storm/issues/148)
+   * For more information about why this unused code exists, see discussion: https://github.com/mesos/storm/pull/146#issuecomment-225496075
+   */
   public List<ResourceEntry> reserveAndGet(ResourceType resourceType, ReservationType reservationType, ResourceEntry<?> resource) throws
     ResourceNotAvailableException {
     if (availableResources.get(resourceType).isAvailable(resource, reservationType)) {
       return availableResources.get(resourceType).removeAndGet(resource, reservationType);
     }
     return new ArrayList<>();
-  }
-
-  public List<Protos.Offer> getOfferList() {
-    return offerList;
   }
 
   public List<Protos.OfferID> getOfferIDList() {
@@ -162,7 +168,6 @@ public class AggregatedOffers {
 
 
   public boolean isFit(Map mesosStormConf, TopologyDetails topologyDetails, boolean supervisorExists) {
-
     double requestedWorkerCpu = MesosCommon.topologyWorkerCpu(mesosStormConf, topologyDetails);
     double requestedWorkerMem = MesosCommon.topologyWorkerMem(mesosStormConf, topologyDetails);
 
@@ -175,7 +180,6 @@ public class AggregatedOffers {
   }
 
   public boolean isFit(Map mesosStormConf, TopologyDetails topologyDetails, Long port, boolean supervisorExists) {
-
     double requestedWorkerCpu = MesosCommon.topologyWorkerCpu(mesosStormConf, topologyDetails);
     double requestedWorkerMem = MesosCommon.topologyWorkerMem(mesosStormConf, topologyDetails);
 
