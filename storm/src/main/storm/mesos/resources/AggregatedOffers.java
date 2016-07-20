@@ -98,7 +98,11 @@ public class AggregatedOffers {
     return availableResources.get(resourceType).isAvailable(resource);
   }
 
-  // Unused Method - Exists for the reason described in https://github.com/mesos/storm/pull/146#issuecomment-225496075
+  /**
+   * Unused Method - Exists for the purpose of facilitating support of reservations.
+   * TODO: Support reservations (https://github.com/mesos/storm/issues/148)
+   * For more information about why this unused code exists, see discussion: https://github.com/mesos/storm/pull/146#issuecomment-225496075
+   */
   public boolean isAvailable(ResourceType resourceType, ReservationType reservationType, ResourceEntry<?> resource) {
     return availableResources.get(resourceType).isAvailable(resource, reservationType);
   }
@@ -107,7 +111,11 @@ public class AggregatedOffers {
     return availableResources.get(resourceType).getAllAvailableResources();
   }
 
-  // Unused Method - Exists for the reason described in https://github.com/mesos/storm/pull/146#issuecomment-225496075
+  /**
+   * Unused Method - Exists for the purpose of facilitating support of reservations.
+   * TODO: Support reservations (https://github.com/mesos/storm/issues/148)
+   * For more information about why this unused code exists, see discussion: https://github.com/mesos/storm/pull/146#issuecomment-225496075
+   */
   public <T extends ResourceEntry> List<T> getAllAvailableResources(ResourceType resourceType, ReservationType reservationType) {
     return availableResources.get(resourceType).getAllAvailableResources(reservationType);
   }
@@ -125,7 +133,11 @@ public class AggregatedOffers {
     return new ArrayList<>();
   }
 
-  // Unused Method - Exists for the reason described in https://github.com/mesos/storm/pull/146#issuecomment-225496075
+  /**
+   * Unused Method - Exists for the purpose of facilitating support of reservations.
+   * TODO: Support reservations (https://github.com/mesos/storm/issues/148)
+   * For more information about why this unused code exists, see discussion: https://github.com/mesos/storm/pull/146#issuecomment-225496075
+   */
   public List<ResourceEntry> reserveAndGet(ResourceType resourceType, ReservationType reservationType, ResourceEntry<?> resource) throws
     ResourceNotAvailableException {
     if (availableResources.get(resourceType).isAvailable(resource, reservationType)) {
