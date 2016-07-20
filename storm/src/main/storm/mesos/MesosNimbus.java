@@ -384,10 +384,6 @@ public class MesosNimbus implements INimbus {
     }
   }
 
-  private String getLogViewerConfig() {
-    return String.format(" -c %s=true", MesosCommon.AUTO_START_LOGVIEWER_CONF);
-  }
-
   /**
    *  This method is invoked after IScheduler.schedule assigns the worker slots to the topologies that need assignments
    *
