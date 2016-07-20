@@ -52,6 +52,7 @@ public class ScalarResource implements Resource<ScalarResourceEntry> {
     return (availableResourcesByReservationType.get(reservationType).getValue() >= scalarResourceEntry.getValue());
   }
 
+  // Unused Method - Exists for the reason described in https://github.com/mesos/storm/pull/146#issuecomment-225496075
   public Double getTotalAvailableResource(ReservationType reservationType) {
     return availableResourcesByReservationType.get(reservationType).getValue();
   }
@@ -80,14 +81,6 @@ public class ScalarResource implements Resource<ScalarResourceEntry> {
 
   public List<ResourceEntry> removeAndGet(ScalarResourceEntry scalarResourceEntry) throws ResourceNotAvailableException {
     return removeAndGet(scalarResourceEntry, availableResourcesByReservationType.keySet());
-  }
-
-  public List<ResourceEntry> reserveScalarResource(ResourceType resourceType, ScalarResourceEntry requiredValue) throws ResourceNotAvailableException {
-    if (totalAvailableResource < requiredValue.getValue()) {
-      throw new ResourceNotAvailableException(String.format("resourceType: {} is not available. Requested {} Available {}",
-                                                           resourceType, requiredValue, totalAvailableResource));
-    }
-    return removeAndGet(requiredValue);
   }
 
   /**

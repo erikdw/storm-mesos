@@ -38,8 +38,10 @@ public interface Resource<T extends ResourceEntry<? extends Number>> {
 
   public List<ResourceEntry> removeAndGet(T resourceEntry) throws ResourceNotAvailableException;
 
+  // Unused Method - Exists for the reason described in https://github.com/mesos/storm/pull/146#issuecomment-225496075
   public List<ResourceEntry> removeAndGet(T value, ReservationType reservationType) throws ResourceNotAvailableException;
 
+  // Unused Method - Exists for the reason described in https://github.com/mesos/storm/pull/146#issuecomment-225496075
   public List<ResourceEntry> removeAndGet(T value, Comparator<ReservationType> reservationTypeComparator) throws ResourceNotAvailableException;
 
 }
