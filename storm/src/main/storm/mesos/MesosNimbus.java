@@ -408,7 +408,7 @@ public class MesosNimbus implements INimbus {
         topologySlotAssignmentStrings.add("(" + slot + ", " + MesosCommon.topologyWorkerCpu(mesosStormConf, details) + ", " + MesosCommon.topologyWorkerMem(mesosStormConf, details) + ")");
       }
       if (!topologyToSlots.getValue().isEmpty()) {
-        info += String.join(", ", topologySlotAssignmentStrings);
+        info += StringUtils.join(topologySlotAssignmentStrings, ", ");
         LOG.info(info);
       }
     }
