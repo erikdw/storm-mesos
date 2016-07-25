@@ -18,6 +18,7 @@
 package storm.mesos.schedulers;
 
 import backtype.storm.scheduler.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.mesos.Protos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,7 +172,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
     for (WorkerSlot slot : allSlots) {
       slotsStrings.add("" + slot.getNodeId() + ":" + slot.getPort());
     }
-    log.info("allSlotsAvailableForScheduling - {} available slots: [{}]", allSlots.size(), String.join(", ", slotsStrings));
+    log.info("allSlotsAvailableForScheduling - {} available slots: [{}]", allSlots.size(), StringUtils.join(slotsStrings, ", "));
     return allSlots;
   }
 
@@ -262,7 +263,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
     for (ExecutorDetails exec : executors) {
       executorsStrings.add(exec.toString());
     }
-    String info = String.format("executorsPerWorkerList - available executors for topology %s: %s", topologyDetails.getId(), String.join(", ", executorsStrings));
+    String info = String.format("executorsPerWorkerList - available executors for topology %s: %s", topologyDetails.getId(), StringUtils.join(executorsStrings, ", "));
     for (int i = 0; i < slotsToUse; i++) {
       executorsPerWorkerList.add(new ArrayList<ExecutorDetails>());
     }
@@ -303,7 +304,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       for (WorkerSlot ws : workerSlots) {
         workerSlotsStrings.add(ws.toString());
       }
-      info += "[" + String.join(", ", workerSlotsStrings) + "]";
+      info += String.format("[%s]", StringUtils.join(workerSlotsStrings, ", "));
     }
     log.info(info);
 
@@ -314,7 +315,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       for (MesosWorkerSlot mws : perTopologySlotList.get(topo)) {
         mwsAssignments.add(mws.getNodeId() + ":" + mws.getPort());
       }
-      info += (" {" + topo + ", [" + String.join(", ", mwsAssignments) + "]}");
+      info += String.format(" {%s, [%s]}", topo, StringUtils.join(mwsAssignments, ", "));
     }
     log.info(info);
 
@@ -353,7 +354,7 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
       if (slotsAvailable == 0) {
         info += "[]";
       } else {
-        info += String.join(", ", slotAssignmentStrings);
+        info += StringUtils.join(slotAssignmentStrings, ", ");
       }
       log.info(info);
     }
