@@ -248,7 +248,8 @@ public class DefaultScheduler implements IScheduler, IMesosStormScheduler {
        * For now we just issue a warning when we detect such a situation.
        */
       int slotsNeeded = slotsRequested - slotsAssigned;
-      slotsToUse = Math.min(slotsNeeded, slotsAvailable);
+      // Just in case something strange happens, we don't want this to be negative
+      slotsToUse = Math.max(Math.min(slotsNeeded, slotsAvailable), 0);
       // Notably, if slotsAssigned was 0, then this would be a full rebalance onto less workers than requested,
       // and hence wouldn't lead to an imbalance.
       if (slotsToUse + slotsAssigned < slotsRequested && slotsAssigned != 0) {
